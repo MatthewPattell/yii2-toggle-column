@@ -78,6 +78,12 @@ class ToggleColumn extends DataColumn
             $this->grid->options['id'] = $this->getUniqueId();
         }
 
+        if (empty($this->filter) && $this->filter !== false && $this->filter !== NULL) {
+            $this->filter = array_map(function ($v) {
+                return trim(strip_tags($v));
+            }, $this->values);
+        }
+
         /** @var ActiveRecord $modelClass */
         $modelClass = $this->modelClass;
         $primaryKey = $modelClass::primaryKey()[0];
