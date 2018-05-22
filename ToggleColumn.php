@@ -23,6 +23,8 @@ use yii\web\View;
  */
 class ToggleColumn extends DataColumn
 {
+    const FILTER_DEFAULT = 'filter_default';
+
     /**
      * Values
      *
@@ -78,10 +80,12 @@ class ToggleColumn extends DataColumn
             $this->grid->options['id'] = $this->getUniqueId();
         }
 
-        if (empty($this->filter) && $this->filter !== false && $this->filter !== NULL) {
+        if (empty($this->filter) && $this->filter !== false && $this->filter !== self::FILTER_DEFAULT) {
             $this->filter = array_map(function ($v) {
                 return trim(strip_tags($v));
             }, $this->values);
+        } elseif ($this->filter === self::FILTER_DEFAULT) {
+            $this->filter = NULL;
         }
 
         /** @var ActiveRecord $modelClass */
