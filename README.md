@@ -63,7 +63,7 @@ class SampleController extends Controller
     public function actions(): array
     {
         return array_merge(parent::actions(), [
-            'mp-toggle-colunm' => \MP\GridView\ToggleColumnAction::class,
+            'mp-toggle-column' => \MP\GridView\ToggleColumnAction::class,
         ]);
     }
 ...

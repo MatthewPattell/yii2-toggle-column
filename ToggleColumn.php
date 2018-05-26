@@ -13,6 +13,7 @@ use yii\base\InvalidConfigException;
 use yii\grid\DataColumn;
 use yii\helpers\Html;
 use yii\helpers\Json;
+use yii\helpers\Url;
 use yii\web\View;
 
 /**
@@ -38,11 +39,15 @@ class ToggleColumn extends DataColumn
     ];
 
     /**
-     * @var string
+     * Action url
+     *
+     * @var string|array
      */
-    public $actionUrl = 'mp-toggle-column';
+    public $actionUrl = ['mp-toggle-column'];
 
     /**
+     * Column format
+     *
      * @var string
      */
     public $format = 'raw';
@@ -73,7 +78,13 @@ class ToggleColumn extends DataColumn
         }
 
         if (empty($this->modelClass)) {
-            $this->modelClass = \get_class($this->grid->filterModel);
+            $tmpClassName = $this->grid->filterModel ? : $this->grid->dataProvider->getModels()[0] ?? NULL;
+
+            if ($tmpClassName) {
+                $this->modelClass = \get_class($tmpClassName);
+            } else {
+                throw new InvalidConfigException('Model class not set.');
+            }
         }
 
         if (empty($this->grid->options['id'])) {
@@ -93,7 +104,7 @@ class ToggleColumn extends DataColumn
         $primaryKey = $modelClass::primaryKey()[0];
 
         $localModuleOptions = [
-            'url'            => $this->actionUrl,
+            'url'            => Url::to($this->actionUrl),
             'values'         => $this->values,
             'mpDataARToggle' => \base64_encode(Yii::$app->getSecurity()->encryptByKey(json_encode([
                 'modelClass' => $modelClass,
