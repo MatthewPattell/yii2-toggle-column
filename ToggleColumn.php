@@ -72,6 +72,11 @@ class ToggleColumn extends DataColumn
     private $encryptionKey;
 
     /**
+     * @var View
+     */
+    public $view;
+
+    /**
      * @inheritdoc
      */
     public function init()
@@ -100,6 +105,10 @@ class ToggleColumn extends DataColumn
             if (empty($this->primaryKey)) {
                 throw new InvalidConfigException('Model primary key not set.');
             }
+        }
+
+        if (empty($this->view)) {
+            $this->view = $this->grid->view;
         }
 
         if (empty($this->grid->options['id'])) {
@@ -137,12 +146,12 @@ class ToggleColumn extends DataColumn
      */
     protected function registerAssets(array $localModuleOptions = []): void
     {
-        ToggleColumnAsset::register($this->grid->view);
+        ToggleColumnAsset::register($this->view);
 
-        $this->grid->view->registerCss('.mp-toggle-button{display:inline-block;cursor:pointer;}.tg-loading{opacity:0.7;}');
+        $this->view->registerCss('.mp-toggle-button{display:inline-block;cursor:pointer;}.tg-loading{opacity:0.7;}');
 
-        $this->grid->view->registerJs('MPToggleColumn.init();', View::POS_END, 'MPToggleColumnInit');
-        $this->grid->view->registerJs("MPToggleColumn.add('.mp-toggle-button', " . Json::encode($localModuleOptions) . ");");
+        $this->view->registerJs('MPToggleColumn.init();', View::POS_END, 'MPToggleColumnInit');
+        $this->view->registerJs("MPToggleColumn.add('.mp-toggle-button', " . Json::encode($localModuleOptions) . ");");
     }
 
     /**
@@ -165,5 +174,29 @@ class ToggleColumn extends DataColumn
             'data-id'    => $key ? : $model->getAttribute($this->primaryKey),
             'data-value' => $model->{$this->attribute},
         ]);
+    }
+
+    /**
+     * Init column and return value for Detail View widget
+     *
+     * @param string $attribute
+     * @param array  $params current widget init params
+     *
+     * @return \Closure
+     */
+    public static function getValue(string $attribute, array $params = []): \Closure
+    {
+        return function ($model, $widget) use ($attribute, $params) {
+            $params = array_merge([
+                'modelClass' => \get_class($model),
+                'filter'     => false,
+                'view'       => $widget->view,
+                'attribute'  => $attribute,
+            ], $params);
+
+            $widget = new self($params);
+
+            return $widget->renderDataCellContent($model, 0, 0);
+        };
     }
 }
