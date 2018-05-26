@@ -60,6 +60,13 @@ class ToggleColumn extends DataColumn
     public $modelClass = NULL;
 
     /**
+     * Model primary key
+     *
+     * @var null
+     */
+    public $primaryKey = NULL;
+
+    /**
      * @var string
      */
     private $encryptionKey;
@@ -83,7 +90,15 @@ class ToggleColumn extends DataColumn
             if ($tmpClassName) {
                 $this->modelClass = \get_class($tmpClassName);
             } else {
-                throw new InvalidConfigException('Model class not set.');
+                throw new InvalidConfigException('Model class name not set.');
+            }
+        }
+
+        if (empty($this->primaryKey)) {
+            $this->primaryKey = ($this->modelClass)::primaryKey()[0] ?? NULL;
+
+            if (empty($this->primaryKey)) {
+                throw new InvalidConfigException('Model primary key not set.');
             }
         }
 
@@ -99,17 +114,13 @@ class ToggleColumn extends DataColumn
             $this->filter = NULL;
         }
 
-        /** @var ActiveRecord $modelClass */
-        $modelClass = $this->modelClass;
-        $primaryKey = $modelClass::primaryKey()[0];
-
         $localModuleOptions = [
             'url'            => Url::to($this->actionUrl),
             'values'         => $this->values,
             'mpDataARToggle' => \base64_encode(Yii::$app->getSecurity()->encryptByKey(json_encode([
-                'modelClass' => $modelClass,
+                'modelClass' => $this->modelClass,
                 'attribute'  => $this->attribute,
-                'primaryKey' => $primaryKey,
+                'primaryKey' => $this->primaryKey,
                 'values'     => \array_keys($this->values),
             ]), $this->encryptionKey)),
         ];
@@ -151,7 +162,7 @@ class ToggleColumn extends DataColumn
     {
         return Html::tag('div', $this->values[$model->{$this->attribute}], [
             'class'      => 'mp-toggle-button',
-            'data-id'    => $key,
+            'data-id'    => $key ? : $model->getAttribute($this->primaryKey),
             'data-value' => $model->{$this->attribute},
         ]);
     }
