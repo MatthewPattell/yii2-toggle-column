@@ -171,7 +171,7 @@ class ToggleColumn extends DataColumn
     {
         return Html::tag('div', $this->values[$model->{$this->attribute}], [
             'class'      => 'mp-toggle-button',
-            'data-id'    => $key ? : $model->getAttribute($this->primaryKey),
+            'data-id'    => $model->getAttribute($this->primaryKey),
             'data-value' => $model->{$this->attribute},
         ]);
     }
