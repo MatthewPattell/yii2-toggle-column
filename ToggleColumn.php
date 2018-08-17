@@ -167,7 +167,7 @@ class ToggleColumn extends DataColumn
         ToggleColumnAsset::register($this->view);
 
         $this->view->registerCss('.mp-toggle-button{display:inline-block;cursor:pointer;}
-        .mp-toggle-button.disabled{cursor:default;}.tg-loading{opacity:0.7;}', 'mp-toggle-column-css1');
+        .mp-toggle-button.disabled{cursor:default;}.tg-loading{opacity:0.7;}', [], 'mp-toggle-column-css1');
 
         $this->view->registerJs('MPToggleColumn.init();', View::POS_END, 'MPToggleColumnInit');
 
