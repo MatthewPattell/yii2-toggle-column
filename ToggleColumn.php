@@ -26,6 +26,13 @@ class ToggleColumn extends DataColumn
     const FILTER_DEFAULT = 'filter_default';
 
     /**
+     * Button unique id
+     *
+     * @var string
+     */
+    public $id;
+
+    /**
      * Values
      *
      * value => button
@@ -52,7 +59,14 @@ class ToggleColumn extends DataColumn
      *
      * @var string|NULL
      */
-    public $modelClass = NULL;
+    public $modelClass = null;
+
+    /**
+     * Disable toggle action
+     *
+     * @var bool
+     */
+    public $disableToggle = false;
 
     /**
      * @var string
@@ -80,12 +94,16 @@ class ToggleColumn extends DataColumn
             $this->grid->options['id'] = $this->getUniqueId();
         }
 
+        if (empty($this->id)) {
+            $this->id = $this->getUniqueId();
+        }
+
         if (empty($this->filter) && $this->filter !== false && $this->filter !== self::FILTER_DEFAULT) {
             $this->filter = array_map(function ($v) {
                 return trim(strip_tags($v));
             }, $this->values);
         } elseif ($this->filter === self::FILTER_DEFAULT) {
-            $this->filter = NULL;
+            $this->filter = null;
         }
 
         /** @var ActiveRecord $modelClass */
@@ -117,10 +135,14 @@ class ToggleColumn extends DataColumn
     {
         ToggleColumnAsset::register($this->grid->view);
 
-        $this->grid->view->registerCss('.mp-toggle-button{display:inline-block;cursor:pointer;}.tg-loading{opacity:0.7;}');
+        $this->grid->view->registerCss('.mp-toggle-button{display:inline-block;cursor:pointer;}
+        .mp-toggle-button.disabled{cursor:default;}.tg-loading{opacity:0.7;}', 'mp-toggle-column-css1');
 
         $this->grid->view->registerJs('MPToggleColumn.init();', View::POS_END, 'MPToggleColumnInit');
-        $this->grid->view->registerJs("MPToggleColumn.add('.mp-toggle-button', " . Json::encode($localModuleOptions) . ");");
+
+        if (!$this->disableToggle) {
+            $this->grid->view->registerJs("MPToggleColumn.add('#{$this->id}', " . Json::encode($localModuleOptions) . ");");
+        }
     }
 
     /**
@@ -139,7 +161,8 @@ class ToggleColumn extends DataColumn
     public function renderDataCellContent($model, $key, $index)
     {
         return Html::tag('div', $this->values[$model->{$this->attribute}], [
-            'class'      => 'mp-toggle-button',
+            'id'         => $this->id,
+            'class'      => 'mp-toggle-button' . ($this->disableToggle ? ' disabled' : null),
             'data-id'    => $key,
             'data-value' => $model->{$this->attribute},
         ]);
