@@ -55,6 +55,28 @@ GridView::widget([
 ]);
 ```
 
+Add toggle column in DetailView:
+```
+DetailView::widget([
+    'model'      => $model,
+    'attributes' => [
+        'id',
+        'name',
+        // Toggle column
+        [
+            'attribute' => 'visible',
+            'format'    => 'raw',
+            'value'     => ToggleColumn::getValue('visible', [
+                'values' => [
+                    0 => Html::tag('span', Yii::t('app', 'Off'), ['class' => 'label label-danger']),
+                    1 => Html::tag('span', Yii::t('app', 'On'), ['class' => 'label label-success']),
+                ],
+            ]),
+        ],
+    ],
+])
+```
+
 Add action in controller:
 ```php
 class SampleController extends Controller
@@ -63,7 +85,7 @@ class SampleController extends Controller
     public function actions(): array
     {
         return array_merge(parent::actions(), [
-            'mp-toggle-colunm' => \MP\GridView\ToggleColumnAction::class,
+            'mp-toggle-column' => \MP\GridView\ToggleColumnAction::class,
         ]);
     }
 ...
