@@ -31,7 +31,7 @@ class ToggleColumn extends DataColumn
      *
      * @var string
      */
-    public $id;
+    public $classID;
 
     /**
      * Values
@@ -129,8 +129,8 @@ class ToggleColumn extends DataColumn
             $this->grid->options['id'] = $this->getUniqueId();
         }
 
-        if (empty($this->id)) {
-            $this->id = $this->getUniqueId();
+        if (empty($this->classID)) {
+            $this->classID = $this->getUniqueId();
         }
 
         if (empty($this->filter) && $this->filter !== false && $this->filter !== self::FILTER_DEFAULT) {
@@ -172,7 +172,7 @@ class ToggleColumn extends DataColumn
         $this->view->registerJs('MPToggleColumn.init();', View::POS_END, 'MPToggleColumnInit');
 
         if (!$this->disableToggle) {
-            $this->view->registerJs("MPToggleColumn.add('#{$this->id}', " . Json::encode($localModuleOptions) . ");");
+            $this->view->registerJs("MPToggleColumn.add('.{$this->classID}', " . Json::encode($localModuleOptions) . ");");
         }
     }
 
@@ -192,8 +192,7 @@ class ToggleColumn extends DataColumn
     public function renderDataCellContent($model, $key, $index)
     {
         return Html::tag('div', $this->values[$model->{$this->attribute}], [
-            'id'         => $this->id,
-            'class'      => 'mp-toggle-button' . ($this->disableToggle ? ' disabled' : null),
+            'class'      => 'mp-toggle-button' . " {$this->classID}" . ($this->disableToggle ? ' disabled' : null),
             'data-id'    => $model->getAttribute($this->primaryKey),
             'data-value' => $model->{$this->attribute},
         ]);
